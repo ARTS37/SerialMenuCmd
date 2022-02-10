@@ -29,6 +29,7 @@
  *
  * @version version Version
  * V1.0.0, May 05th 2021, initial release, Armand ROLLAND
+ * V1.1.0, February 2022, added a function to get a date/time group from a string, Armand ROLLAND 
  * 
  * @section author Author
  * Armand ROLLAND -> armand.rolland71@gmail.com
@@ -61,7 +62,10 @@
 
 /* Includes Files (libraries) =================================================== */
 #include <Arduino.h>      /// required for Visual Studio Code
-#include <avr/pgmspace.h> /// for memory program access
+#include <avr/pgmspace.h> /// for memory program access 
+#include <time.h>         ///required for date operating
+#include <stdio.h>        ///required for formatted output conversion to a string of characters
+
 
 /* macros =============================================================================== */
 #define NB_MAX_CHAR_IN_TXT 64 ///maximum number of characters used in strings
@@ -97,6 +101,30 @@ typedef struct
   PtFunc itemPtFunct;
 } stMenuCmd;
 
+
+/**
+ * @struct structure that contains the individual elements of a date/time group :
+ *         - u16Year, 2 bytes, to specify the year (0 to 65535)
+ *         - u8Month, 1 byte, to specify the month (1 to 12)
+ *         - u8Day, 1 byte, to specify the day (1 to 31)
+ *         - u8Hour, 1 byte, to specify the hour (00 to 23)
+ *         - u8Min, 1 byte, to specify the minute (00 to 59) 
+ *         - u8Sec, 1 Byte, to specify the second (00 to 59)
+ * 
+ *         Outside lower and upper limit the date/time group is considered wrong
+ */
+typedef struct {
+    uint16_t u16Year;
+    uint8_t u8Month;
+    uint8_t u8Day;
+    uint8_t u8Hour;
+    uint8_t u8Min;
+    uint8_t u8Sec;
+//} stDTGi;
+} stDateTimeGroup;
+
+
+
 /**
  * @class Serial Menu Command Library
  * 
@@ -109,22 +137,23 @@ private:
   const char *mPromptText; //Text to write before '>'
 
   /**
-     * @brief Find a matching between command codes list and the parameter
+     * @fn Find a matching between command codes list and the parameter
      * 
      * @param key pressed by user
      * @return uint8_t 0 -> no command, >0 order command in the list 
      */
   uint8_t searchCode(char key);
 
+
 public:
   /**
-     * @brief Construct a new Serial Menu Cmd object
+     * @fn Construct a new Serial Menu Cmd object
      * 
      */
   SerialMenuCmd();
 
   /**
-     * @brief Initialization
+     * @fn Initialization
      * 
      * @param list      structure stMenuCmd
      * @param NbCmd     the number of commands in list
@@ -135,7 +164,7 @@ public:
   bool begin(stMenuCmd list[], uint8_t NbCmd, const char *acPrompt);
 
   /**
-     * @brief Execution of a command in the list
+     * @fn Execution of a command in the list
      * 
      * @param numItem command number in the list
      * @return int8_t true = Command executed, <0 error code (see enum MenuCmdReturnCodeError)
@@ -143,27 +172,27 @@ public:
   int8_t ExeCommand(uint8_t numItem);
 
   /**
-     * @brief Get the number of commands in the list
+     * @fn Get the number of commands in the list
      * 
      * @return uint8_t number of commands (0 = no list)
      */
   uint8_t getNbCmds(void);
 
   /**
-     * @brief Display menu on serial monitor or terminal
+     * @fn Display menu on serial monitor or terminal
      * 
      */
   void ShowMenu(void);
 
   /**
-     * @brief Scan serial Flow to identify commands codes
+     * @fn Scan serial Flow to identify commands codes
      * 
      * @return uint8_t 0 = no code, >0 command number in the list
      */
   uint8_t UserRequest(void);
 
   /**
-     * @brief getting a string object containing a numeric value
+     * @fn getting a string object containing a numeric value
      * 
      * @param sMessValue
      *        - Enter function = Message to user to guide him 
@@ -174,7 +203,7 @@ public:
   bool getStrValue(String &sMessValue);
 
   /**
-     * @brief Getting a string object containing a string of character
+     * @fn Getting a string object containing a string of character
      *        - Enter function = Message to user to guide him 
      *        - output function = string containing string of character
      * @param sMessText 
@@ -184,8 +213,35 @@ public:
      */
   bool getStrOfChar(String &sMessText);
 
+
+
   /**
-     * @brief give command prompt to user
+   * @fn Convert a string object to a date-time group structure.
+   *        a date-time group (DTg) includes : Year, Month, day, Hour, minute, second.
+   *        DTg is formated in ISO8601 in the object string.
+   *        YYYY-MM-DDThh:mm:ss
+   *        YYYY (4 char.) -> Year
+   *        MM (2 char.) -> Month
+   *        DD (2 char.) -> Day
+   *        T -> letter T
+   *        hh (2 char.) -> Hour
+   *        mm (2 char.) -> minute
+   *        ss (2 char.) -> second
+   * 
+   * @param sDTgStrChar String object including a string of max 20 characters in ISO 8601 format
+   * @param stRet struct stDateTimeGroup
+   * @return true Successful conversion
+   * @return false failed conversion (do not use struct stDateTimeGroup)
+   */
+  //bool ConvStrToDTg(char *DTgString, stDTGi &stRet);
+   bool ConvStrToDTg(String &sDTgStrChar, stDateTimeGroup &stRet);
+
+
+
+
+
+  /**
+     * @fn give command prompt to user
      * 
      */
   void giveCmdPrompt(void);

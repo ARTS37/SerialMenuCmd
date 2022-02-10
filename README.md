@@ -180,6 +180,8 @@ function offered by the library
 |UserRequest|Scan serial Flow to identify commands codes, return 0 if no command identified eless number command.|
 |getStrValue|If return true then the String object, passed in argument, contains a digital value in text format (it needed to convert with atoi or atof)|
 |getStrofChar|If return true then the String object, passed in argument, contains a string of character|
+|ConvStrToDTg|If return true then the struct stDateTimeGroup, passed in argument, contains date and date define by user|
+
 ___
 </br>
 
@@ -188,6 +190,7 @@ ___
 |Version|Changelog|Contributor|
 |------ | --------|-----------|
 |V1.0.0|Initial release|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
+|V1.1.0|added a function to convert a character string into elements that compose a date and a time|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
 
 ___
 </br>
@@ -199,7 +202,7 @@ First, download the library as a ZIP, which is done by clicking the green “Clo
 Once downloaded, go to the Arduino IDE, click <ins>__*Sketch > Include Library > Add .zip Library*__</ins> and select zip file.
 
 Library is distributed as a ZIP file. The name of the folder is the name of library. Inside the folder will be :
-- a subfolder "*Examples*" which contains 2 examples
+- a subfolder "*Examples*" which contains 3 examples
 - a subfolder "*src*" which contains sources files (SerialMenuCmd.h, SerialMenuCmdLand.h and SerialMenuCmd.cpp)
 - Keywords.txt
 - licence.txt
@@ -227,8 +230,10 @@ Root c:\ (by default)
                         ├── examples
                         │   ├── exemple1
                         │   │   └── example1.ino
-                        │   └── exemple2
-                        │       └── example1.ino
+                        │   ├── exemple2
+                        │   │   └── example2.ino
+                        │   └── exemple3
+                        │       └── example3.ino (require RTC board DS1302)
                         ├── src
                         │   ├── SerialMenuCmd.h
                         │   ├── SerialMenuCmdLang.h
@@ -278,7 +283,7 @@ ___
 
 MIT License
 
-Copyright (c) 2021 Armand ROLLAND
+Copyright (c) 2022 Armand ROLLAND
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -9,4 +9,5 @@ getStrOfChar	KEYWORD2
 giveCmdPrompt	KEYWORD2
 tMenuCmdTxt	KEYWORD1
 stMenuCmd	KEYWORD1
+stDateTimeGroup KEYWORD1
 NB_MAX_CHAR_IN_TXT	LITERAL1

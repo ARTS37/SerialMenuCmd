@@ -22,6 +22,7 @@
  *
  * @version version Version
  * V1.0.0, May 05th 2021, initial release, Armand ROLLAND
+ * V1.1.0, February 2022, added a function to get a date/time group from a string, Armand ROLLAND
  * 
  * @section author Author
  * Armand ROLLAND -> armand.rolland71@gmail.com
@@ -478,4 +479,236 @@ bool SerialMenuCmd::getStrOfChar(String& sMessText)
     }
   }
   return true;
+}
+
+
+/**
+ * @fn verification of fields (an array of char) representing a number :
+ *     - field not empty
+ *     - numbers of characters
+ *     - characters only numbers
+ *     This function is call only by ConvStrToDTg menber function
+ * 
+ * @param strStop   end of array char address
+ * @param strStart  start of array char address
+ * @param nbChar    maximum number of characters contained in the string
+ * @return true     Field valid
+ * @return false    Field error
+ */
+bool DTgChekField(char *strStop, char *strStart, uint8_t nbChar)
+{
+ uint8_t i, lenField;
+
+  lenField = strlen(strStart);
+
+  //if none char
+  if (lenField == 0){
+    return false;
+  }
+
+  //if the number of characters does not match
+  if (lenField != nbChar){
+    return false;
+  }
+
+  //if each char is not a number
+  for (i = 0; i < strlen(strStart); i++)
+  {
+    if (isDigit(strStart[i]) == false)
+    {
+      return false;
+    }
+  }
+
+  if(strStart + lenField > strStop){
+    return false;
+  }
+
+  return true;
+}
+
+
+
+bool SerialMenuCmd::ConvStrToDTg(String& sDTgStrChar, stDateTimeGroup& stRet)
+{
+/**
+ * @brief This function Convert a string object to a date-time group structure
+ *        It proceeds as follows :
+ *        1- Check string length
+ *        2- locate delimiters (-, T, :)
+ *        3- check their position
+ *        4- convert strings to integer
+ *        5- check date and hour (bounds, bi-weekly year)
+ *        6- transfer data to the return address
+ * 
+ *        In the event of an error, the function returns false. In this case, the return structure should not be used.
+  */
+char buf[20];
+char *delimHyphen1, *delimHyphen2, *delimT, *delim2pt1, *delim2pt2, *delimEOS;
+stDateTimeGroup GdtLocal;
+bool bLeap;
+
+  //Check string length -> AAAA-MM-DDThh:mm:ss (19 characters max.)
+  if(sDTgStrChar.length() > 19){
+    //Send to user : "-> too many characters in string date/time !"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_TooChar));
+    return false;
+  }
+  
+  //Convert string in char array
+  sDTgStrChar.toCharArray(buf, sDTgStrChar.length() + 1);
+  
+  //Search and locate all delimiter
+  delimHyphen1 = strchr(buf, '-');
+  delimHyphen2 = strchr(delimHyphen1+1, '-');
+  delimT = strchr(delimHyphen2+1, 'T');
+  delim2pt1 = strchr(delimT+1, ':');
+  delim2pt2 = strchr(delim2pt1+1, ':');
+  delimEOS = buf + strlen(buf)+1;
+
+  if((delimHyphen1 == NULL)||(delimHyphen2 == NULL)){
+    //Send to user : " -> Error of delimiter '-' in date"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrHyphen));
+    return false;
+  }
+  
+  if(delimT == NULL){
+    //Send to user : " -> Error of delimiter 'T' Between date and time"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrT));
+    return false;
+  }
+  
+  
+  if((delim2pt1==NULL)||(delim2pt2==0)){
+    //Send to user : " -> Error of delimiter ':' in time"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrColon));
+    return false;
+  }
+  
+  *delimHyphen1 = 0;
+  if(DTgChekField(delimHyphen1, buf, 4) == false){
+    //Send to user : " -> Year field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrYearFd));
+    return false;
+  }
+  delimHyphen1++;
+
+  *delimHyphen2 = 0;
+  if(DTgChekField(delimHyphen2, delimHyphen1, 2) == false){  
+    //Send to user : " -> Month field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrMonthFd));
+    return false;
+  }
+  delimHyphen2++;
+
+  *delimT = 0;
+  if(DTgChekField(delimT, delimHyphen2, 2) == false){  
+    //Send to user : " -> Day field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrDayFd));
+    return false;
+  }
+  delimT++;
+
+  *delim2pt1 = 0;
+  if(DTgChekField(delim2pt1, delimT, 2) == false){  
+    //Send to user : " -> Hour field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrHourFd));
+    return false;
+  }
+  delim2pt1++;
+
+  *delim2pt2 = 0;
+  if(DTgChekField(delim2pt2, delim2pt1, 2) == false){
+    //Send to user : " -> Minute field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrMinuteFd));
+    return false;
+  }
+  delim2pt2++;
+
+  //delimEOS already to 0 (end of string char)
+  if(DTgChekField(delimEOS, delim2pt1, 2) == false){  
+    //Send to user : " -> Second field format error"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_ErrSecondFd));
+    return false;
+  }
+
+  //Convert string to number
+  GdtLocal.u16Year = atoi(buf);
+  GdtLocal.u8Month = atoi(delimHyphen1); 
+  GdtLocal.u8Day = atoi(delimHyphen2);
+  GdtLocal.u8Hour = atoi(delimT);
+  GdtLocal.u8Min = atoi(delim2pt1);
+  GdtLocal.u8Sec = atoi(delim2pt2);
+
+  //Determine if leap year (bLeap = 1 if year is leap)
+  bLeap = ((GdtLocal.u16Year % 4 == 0) && (GdtLocal.u16Year % 100 != 0)) || (GdtLocal.u16Year % 400 == 0);
+
+  if((GdtLocal.u16Year < 1970) || (GdtLocal.u16Year > 9999)){
+    //Send to user : " -> Year out of range, it must be between 1970 and 9999"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_YearOutRange));
+    return false;
+  }
+
+  if((GdtLocal.u8Month < 1) || (GdtLocal.u8Month > 12)){
+    //Send to user : " -> Month out of range, it must be between 1 and 12"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_MonthOutRange));
+    return false;
+  }
+
+  if((GdtLocal.u8Day < 1) || (GdtLocal.u8Day > 31)){
+    //Send to user : " -> Day out of range, it must be between 1 and 31"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_DayOutRange));
+    return false;
+  }
+
+
+  if(GdtLocal.u8Month == 4 || GdtLocal.u8Month == 6 || GdtLocal.u8Month == 9 || GdtLocal.u8Month == 11){
+    if(GdtLocal.u8Day > 30){
+      //Send to user : " -> this month only has 30 days"
+      Serial.print(F(TXT_fctMemberConvStrToDTg_Month30day));
+      return false;
+    }
+  }
+
+  if(GdtLocal.u8Month == 2){
+    if(bLeap == true){
+      if(GdtLocal.u8Day > 29){
+        //Send to user : " -> February only has 29 days in leap year"
+        Serial.print(F(TXT_fctMemberConvStrToDTg_febLeap));
+        return false;
+      }
+    }
+    else{
+      if(GdtLocal.u8Day > 28){
+        //Send to user : " -> February only has 28 days out of leap year"
+        Serial.print(F(TXT_fctMemberConvStrToDTg_febOutLeap));
+        return false;
+      }
+
+    }
+  }
+
+  if((GdtLocal.u8Hour < 0) || (GdtLocal.u8Hour > 23)){
+    //Send to user : " -> Hour out of range, it must be between 0 and 23"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_HourOutRange));
+    return false;
+  }
+
+  if((GdtLocal.u8Min < 0) || (GdtLocal.u8Min > 59)){
+    //Send to user : " -> Minute out of range, it must be between 0 and 59"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_MinuteOutRange));
+    return false;
+  }
+
+  if((GdtLocal.u8Sec < 0) || (GdtLocal.u8Sec > 59)){
+    //Send to user : " -> Second out of range, it must be between 0 and 59"
+    Serial.print(F(TXT_fctMemberConvStrToDTg_SecondOutRange));
+    return false;
+  }
+
+  //Copy in struct passed by address
+  memcpy(&stRet, (void *) &GdtLocal, sizeof(stDateTimeGroup));
+  
+  return true;
+
 }
