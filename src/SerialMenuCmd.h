@@ -30,7 +30,8 @@
  * @version version Version
  * V1.0.0, May 05th 2021, initial release, Armand ROLLAND
  * V1.1.0, February 2022, added a function to get a date/time group from a string, Armand ROLLAND 
- * 
+ * V1.1.1, February 2022, adapt library to work with external terminals, Armand ROLLAND
+* 
  * @section author Author
  * Armand ROLLAND -> armand.rolland71@gmail.com
  * 

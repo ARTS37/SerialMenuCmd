@@ -190,7 +190,8 @@ ___
 |Version|Changelog|Contributor|
 |------ | --------|-----------|
 |V1.0.0|Initial release|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
-|V1.1.0|added a function to convert a character string into elements that compose a date and a time|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
+|V1.1.0|Added a function to convert a character string into elements that compose a date and a time|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
+|V1.1.1|Adapt library to work with external terminals|Armand Rolland Europe, France, Bretagne</br> Armand.rolland71@gmail.com|
 
 ___
 </br>
