@@ -1,0 +1,12 @@
+SerialMenuCmd	KEYWORD1
+begin		KEYWORD2
+ExeCommand	KEYWORD2
+getNbCmds	KEYWORD2
+ShowMenu	KEYWORD2
+UserRequest	KEYWORD2
+getStrValue	KEYWORD2
+getStrOfChar	KEYWORD2
+giveCmdPrompt	KEYWORD2
+tMenuCmdTxt	KEYWORD1
+stMenuCmd	KEYWORD1
+NB_MAX_CHAR_IN_TXT	LITERAL1
