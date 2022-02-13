@@ -1,7 +1,7 @@
 {
   "name": "SerialMenuCmd",
-  "version": "1.1.1",
-  "description": "This Arduino library constitutes a basic Command Line Interface (CLI), It easy to use and low consumption RAM memory.",
+  "version": "1.1.2",
+  "description": "This Arduino library constitutes a basic Command Line Interface (CLI), it easy to use and low consumption RAM memory.",
   "keywords": "Serial, Menu, Command",
   "repository":
   {
