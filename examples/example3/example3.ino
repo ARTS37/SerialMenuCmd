@@ -13,8 +13,8 @@
  *
  * @section libraries Libraries
  * - SerialMenuCmd   -> Common line interface (user <-> Embedded system by serial communication)
- * - ThreeWire       -> ommunication protocol with the integrated circuit DS1302 (must be declared before RtsDS1302)
- * - RtcDS1302       -> Real time clock manager for DS1302 IC's
+ * - ThreeWire       -> Communication protocol with the integrated circuit DS1302 (must be declared before RtsDS1302)
+ * - RtcDS1302       -> Real time clock manager for DS1302 IC's ("Rtc by Makuna" on Arduino Library List site's)
  *
  * @section notes Notes
  * none at this time
